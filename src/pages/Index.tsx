@@ -14,6 +14,7 @@ import {
   Calendar
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -47,6 +48,29 @@ const Index = () => {
           amount="0"
           currency="kun"
         />
+
+        {/* Subscription Renewal Prompt */}
+        <Card className="p-6 bg-card border-2 border-warning/20">
+          <div className="text-center space-y-4">
+            <h3 className="text-lg font-semibold text-foreground">Obunani yangilaysizmi?</h3>
+            
+            <div className="flex gap-3">
+              <PrimaryButton 
+                className="flex-1 bg-primary hover:bg-primary-hover"
+                onClick={() => handleNavigation("subscription")}
+              >
+                Ha
+              </PrimaryButton>
+              <Button 
+                variant="outline" 
+                className="flex-1 py-6 border-2 hover:bg-muted"
+                onClick={() => {}}
+              >
+                Yo'q
+              </Button>
+            </div>
+          </div>
+        </Card>
 
         <div className="space-y-3">
           <MenuItem 
@@ -284,9 +308,9 @@ const Index = () => {
     </div>
   );
 
-  // Show subscription by default for demo
+  // Show dashboard by default
   React.useEffect(() => {
-    setCurrentPage("subscription");
+    setCurrentPage("dashboard");
   }, []);
 
   switch (currentPage) {
