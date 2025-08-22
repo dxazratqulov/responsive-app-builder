@@ -8,35 +8,69 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* App Background Colors */
+    --background: 215 24% 97%;
+    --foreground: 210 15% 15%;
 
+    /* Card Colors */
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 210 15% 15%;
 
+    /* Popover Colors */
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 210 15% 15%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Primary Navy Theme */
+    --primary: 210 30% 20%;
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 210 30% 25%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Secondary Light Theme */
+    --secondary: 210 20% 95%;
+    --secondary-foreground: 210 15% 15%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Muted Colors */
+    --muted: 210 20% 96%;
+    --muted-foreground: 210 10% 50%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Accent Colors */
+    --accent: 210 20% 95%;
+    --accent-foreground: 210 15% 15%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    /* Destructive Colors */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    /* Border and Input */
+    --border: 210 20% 88%;
+    --input: 210 20% 88%;
+    --ring: 210 30% 20%;
 
-    --radius: 0.5rem;
+    /* Success Colors */
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+
+    /* Warning Colors */
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+
+    /* Header specific */
+    --header-bg: 210 30% 18%;
+    --header-foreground: 0 0% 100%;
+
+    /* Radius */
+    --radius: 12px;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(210 30% 20%), hsl(210 30% 25%));
+    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%), hsl(210 20% 98%));
+
+    /* Shadows */
+    --shadow-card: 0 2px 10px -2px hsl(210 10% 50% / 0.1);
+    --shadow-button: 0 2px 8px -2px hsl(210 30% 20% / 0.2);
+
+    /* Animations */
+    --transition-smooth: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 
     --sidebar-background: 0 0% 98%;
 
