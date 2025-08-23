@@ -11,8 +11,12 @@ import {
   MessageCircle,
   CheckCircle,
   Wallet,
-  Calendar
+  Calendar,
+  ChevronDown,
+  Clock,
+  ExternalLink
 } from "lucide-react";
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,7 +24,7 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
-type Page = "dashboard" | "subscription" | "card-input" | "profile";
+type Page = "dashboard" | "subscription" | "card-input" | "profile" | "payment-history" | "faq";
 
 const Index = () => {
   const [currentPage, setCurrentPage] = useState<Page>("dashboard");
@@ -61,16 +65,16 @@ const Index = () => {
               <p className="text-warning-foreground/90 text-sm">Sizning obunangiz tugash arafasida</p>
             </div>
             
-            <div className="flex gap-4">
-              <PrimaryButton 
-                className="flex-1 bg-card hover:bg-card-accent text-foreground shadow-md hover:shadow-lg border border-white/20"
+            <div className="flex gap-4 w-full">
+              <Button 
+                className="flex-1 bg-card hover:bg-card-accent text-foreground shadow-md hover:shadow-lg border border-white/20 py-6 rounded-2xl font-semibold transition-all duration-200 hover:scale-[1.02]"
                 onClick={() => handleNavigation("subscription")}
               >
                 Ha
-              </PrimaryButton>
+              </Button>
               <Button 
                 variant="outline" 
-                className="flex-1 py-6 border-2 border-white/30 text-warning-foreground hover:bg-white/10 hover:border-white/40 rounded-2xl font-semibold transition-all duration-200 hover:scale-[1.02]"
+                className="flex-1 py-6 border-2 border-white/30 text-warning-foreground hover:bg-white/10 hover:border-white/40 rounded-2xl font-semibold transition-all duration-200 hover:scale-[1.02] bg-white/5"
                 onClick={() => {}}
               >
                 Yo'q
@@ -88,7 +92,7 @@ const Index = () => {
           <MenuItem 
             icon={CreditCard} 
             title="To'lovlar tarixi"
-            onClick={() => {}}
+            onClick={() => handleNavigation("payment-history")}
           />
           <MenuItem 
             icon={FileText} 
@@ -98,12 +102,12 @@ const Index = () => {
           <MenuItem 
             icon={HelpCircle} 
             title="FAQ"
-            onClick={() => {}}
+            onClick={() => handleNavigation("faq")}
           />
           <MenuItem 
             icon={MessageCircle} 
             title="Aloqa"
-            onClick={() => {}}
+            onClick={() => window.open("https://t.me/Xazratqulov_Diyorbek", "_blank")}
           />
         </div>
       </div>
@@ -265,6 +269,169 @@ const Index = () => {
     </div>
   );
 
+  const renderPaymentHistory = () => {
+    const [currentPage, setCurrentPagePagination] = useState(1);
+    const paymentsPerPage = 10;
+    
+    // Mock data - replace with real API data
+    const payments = [
+      { id: 1, date: "2024-01-15", amount: 67000, status: "Muvaffaqiyatli" },
+      { id: 2, date: "2023-12-15", amount: 67000, status: "Muvaffaqiyatli" },
+      { id: 3, date: "2023-11-15", amount: 67000, status: "Muvaffaqiyatli" },
+    ];
+
+    const totalPages = Math.ceil(payments.length / paymentsPerPage);
+    const startIndex = (currentPage - 1) * paymentsPerPage;
+    const currentPayments = payments.slice(startIndex, startIndex + paymentsPerPage);
+
+    return (
+      <div className="min-h-screen bg-background">
+        <Header title="To'lovlar tarixi" showBack={true} onBack={handleBack} />
+        
+        <div className="p-4 space-y-4">
+          {payments.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 space-y-4">
+              <div className="w-16 h-16 rounded-full bg-muted/20 flex items-center justify-center">
+                <CreditCard className="h-8 w-8 text-muted-foreground" />
+              </div>
+              <div className="text-center space-y-2">
+                <h3 className="text-lg font-semibold text-foreground">To'lovlar topilmadi</h3>
+                <p className="text-muted-foreground">Hozircha hech qanday to'lov amalga oshirilmagan</p>
+              </div>
+            </div>
+          ) : (
+            <>
+              <div className="space-y-3">
+                {currentPayments.map((payment) => (
+                  <Card key={payment.id} className="p-4 hover:shadow-md transition-shadow">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-success/15 flex items-center justify-center">
+                          <CheckCircle className="h-5 w-5 text-success" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-foreground">{payment.status}</p>
+                          <p className="text-sm text-muted-foreground flex items-center gap-1">
+                            <Clock className="h-3 w-3" />
+                            {payment.date}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-foreground">{payment.amount.toLocaleString()} UZS</p>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+              
+              {totalPages > 1 && (
+                <div className="pt-4">
+                  <Pagination>
+                    <PaginationContent>
+                      <PaginationItem>
+                        <PaginationPrevious 
+                          onClick={() => setCurrentPagePagination(Math.max(1, currentPage - 1))}
+                          className={currentPage === 1 ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
+                        />
+                      </PaginationItem>
+                      
+                      {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                        <PaginationItem key={page}>
+                          <PaginationLink
+                            isActive={page === currentPage}
+                            onClick={() => setCurrentPagePagination(page)}
+                            className="cursor-pointer"
+                          >
+                            {page}
+                          </PaginationLink>
+                        </PaginationItem>
+                      ))}
+                      
+                      <PaginationItem>
+                        <PaginationNext 
+                          onClick={() => setCurrentPagePagination(Math.min(totalPages, currentPage + 1))}
+                          className={currentPage === totalPages ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
+                        />
+                      </PaginationItem>
+                    </PaginationContent>
+                  </Pagination>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  const renderFAQ = () => {
+    const faqs = [
+      {
+        question: "Obuna qanday to'lanadi?",
+        answer: "Obuna UzCard, Humo kartalar orqali Click to'lov tizimi yoki chet-el kartalar orqali Tribute to'lov tizimi orqali to'lanadi."
+      },
+      {
+        question: "Obuna summasi qancha?",
+        answer: "Oylik obuna summasi 67,000 so'm."
+      },
+      {
+        question: "Obunani qanday bekor qilishim mumkin?",
+        answer: "Obunani bekor qilish uchun admin bilan bog'laning yoki profil bo'limidan obunani to'xtatishingiz mumkin."
+      },
+      {
+        question: "Pul qaytarib berilishini?",
+        answer: "Foydalanilmagan vaqt uchun pul qaytarib berilmaydi. Obuna yakunida avtomatik to'xtatiladi."
+      },
+      {
+        question: "Texnik yordam qanday olishim mumkin?",
+        answer: "Texnik yordam uchun bizning admin bilan bog'laning yoki FAQ bo'limini ko'rib chiqing."
+      }
+    ];
+
+    return (
+      <div className="min-h-screen bg-background">
+        <Header title="FAQ" showBack={true} onBack={handleBack} />
+        
+        <div className="p-4 space-y-4">
+          <div className="space-y-3">
+            {faqs.map((faq, index) => (
+              <Collapsible key={index}>
+                <CollapsibleTrigger asChild>
+                  <Card className="p-4 cursor-pointer hover:bg-accent/50 transition-colors">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-medium text-foreground text-left">{faq.question}</h3>
+                      <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                    </div>
+                  </Card>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <Card className="mt-2 p-4 bg-muted/30">
+                    <p className="text-muted-foreground leading-relaxed">{faq.answer}</p>
+                  </Card>
+                </CollapsibleContent>
+              </Collapsible>
+            ))}
+          </div>
+          
+          <Card className="p-6 bg-gradient-card border-0 shadow-lg">
+            <div className="text-center space-y-4">
+              <h3 className="text-lg font-semibold text-foreground">Savolingiz topilamadimi?</h3>
+              <p className="text-muted-foreground">Bizning admin bilan bog'laning</p>
+              <Button 
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+                onClick={() => window.open("https://t.me/Xazratqulov_Diyorbek", "_blank")}
+              >
+                <ExternalLink className="h-4 w-4 mr-2" />
+                Admin bilan bog'lanish
+              </Button>
+            </div>
+          </Card>
+        </div>
+      </div>
+    );
+  };
+
   const renderProfile = () => (
     <div className="min-h-screen bg-background">
       <Header title="Ma'lumotlarni o'zgartirish" showBack={true} onBack={handleBack} />
@@ -351,6 +518,10 @@ const Index = () => {
       return renderCardInput();
     case "profile":
       return renderProfile();
+    case "payment-history":
+      return renderPaymentHistory();
+    case "faq":
+      return renderFAQ();
     default:
       return renderDashboard();
   }
