@@ -12,19 +12,19 @@ interface MenuItemProps {
 
 export const MenuItem = ({ icon: Icon, title, onClick, className }: MenuItemProps) => {
   return (
-    <Card className={cn("p-0 bg-card shadow-sm border border-border hover:bg-accent/50 transition-colors", className)}>
+    <Card className={cn("p-0 bg-card shadow-card border border-border/50 hover:shadow-md hover:border-primary/20 transition-all duration-200 hover:scale-[1.02] group", className)}>
       <Button 
         variant="ghost" 
-        className="w-full h-auto p-4 justify-between text-left font-normal"
+        className="w-full h-auto p-5 justify-between text-left font-normal hover:bg-transparent group-hover:bg-accent/30"
         onClick={onClick}
       >
-        <div className="flex items-center gap-3">
-          <div className="w-5 h-5 flex items-center justify-center">
-            <Icon className="h-5 w-5 text-primary" />
+        <div className="flex items-center gap-4">
+          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/15 transition-colors duration-200">
+            <Icon className="h-5 w-5 text-primary group-hover:scale-110 transition-transform duration-200" />
           </div>
-          <span className="text-foreground">{title}</span>
+          <span className="text-foreground font-medium">{title}</span>
         </div>
-        <ChevronRight className="h-4 w-4 text-muted-foreground" />
+        <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all duration-200" />
       </Button>
     </Card>
   );

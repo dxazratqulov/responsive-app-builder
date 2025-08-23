@@ -50,20 +50,27 @@ const Index = () => {
         />
 
         {/* Subscription Renewal Prompt */}
-        <Card className="p-6 bg-card border-2 border-warning/20">
-          <div className="text-center space-y-4">
-            <h3 className="text-lg font-semibold text-foreground">Obunani yangilaysizmi?</h3>
+        <Card className="p-8 bg-gradient-warning border-0 shadow-lg relative overflow-hidden animate-scale-in">
+          {/* Decorative elements */}
+          <div className="absolute -top-4 -right-4 w-20 h-20 bg-white/10 rounded-full" />
+          <div className="absolute -bottom-2 -left-2 w-16 h-16 bg-white/5 rounded-full" />
+          
+          <div className="text-center space-y-6 relative z-10">
+            <div className="space-y-2">
+              <h3 className="text-xl font-bold text-warning-foreground">Obunani yangilaysizmi?</h3>
+              <p className="text-warning-foreground/90 text-sm">Sizning obunangiz tugash arafasida</p>
+            </div>
             
-            <div className="flex gap-3">
+            <div className="flex gap-4">
               <PrimaryButton 
-                className="flex-1 bg-primary hover:bg-primary-hover"
+                className="flex-1 bg-card hover:bg-card-accent text-foreground shadow-md hover:shadow-lg border border-white/20"
                 onClick={() => handleNavigation("subscription")}
               >
                 Ha
               </PrimaryButton>
               <Button 
                 variant="outline" 
-                className="flex-1 py-6 border-2 hover:bg-muted"
+                className="flex-1 py-6 border-2 border-white/30 text-warning-foreground hover:bg-white/10 hover:border-white/40 rounded-2xl font-semibold transition-all duration-200 hover:scale-[1.02]"
                 onClick={() => {}}
               >
                 Yo'q
@@ -108,72 +115,88 @@ const Index = () => {
       <Header title="Parallel Muhit" showBack={true} onBack={handleBack} />
       
       <div className="p-4 space-y-6">
-        <div className="space-y-2">
-          <p className="text-muted-foreground">Obuna narxi</p>
-          <p className="text-4xl font-bold text-foreground">67 000 UZS</p>
+        <div className="space-y-4">
+          <div className="space-y-3">
+            <p className="text-muted-foreground font-medium">Obuna narxi</p>
+            <div className="flex items-baseline gap-2">
+              <span className="text-5xl font-bold text-foreground tracking-tight">67 000</span>
+              <span className="text-xl text-muted-foreground font-medium">UZS</span>
+            </div>
+          </div>
         </div>
 
-        <Card className="p-6 space-y-4">
-          <h3 className="text-lg font-semibold text-foreground">Parallel muhit</h3>
+        <Card className="p-8 bg-gradient-card shadow-lg border-0 relative overflow-hidden">
+          {/* Decorative background */}
+          <div className="absolute top-0 right-0 w-24 h-24 bg-success/5 rounded-full -translate-y-12 translate-x-12" />
           
-          <div className="space-y-3">
-            <div className="flex items-start gap-3">
-              <CheckCircle className="h-5 w-5 text-success mt-0.5 flex-shrink-0" />
-              <div>
-                <p className="font-medium text-foreground">Eksklyuziv kontent</p>
-                <p className="text-sm text-muted-foreground">Matnlar, savol-javoblar va rivoylanishingizga yordam beradigan videolar</p>
-              </div>
-            </div>
+          <div className="space-y-6 relative z-10">
+            <h3 className="text-2xl font-bold text-foreground">Parallel muhit</h3>
             
-            <div className="flex items-start gap-3">
-              <CheckCircle className="h-5 w-5 text-success mt-0.5 flex-shrink-0" />
-              <div>
-                <p className="font-medium text-foreground">Parallel muhit</p>
-                <p className="text-sm text-muted-foreground">Fikrlash va o'sish istagidagi odamlar bilan muloqot qilish imkoni.</p>
+            <div className="space-y-5">
+              <div className="flex items-start gap-4">
+                <div className="w-8 h-8 rounded-full bg-success/15 flex items-center justify-center flex-shrink-0 mt-1">
+                  <CheckCircle className="h-5 w-5 text-success" />
+                </div>
+                <div className="space-y-1">
+                  <p className="font-semibold text-foreground text-lg">Eksklyuziv kontent</p>
+                  <p className="text-muted-foreground leading-relaxed">Matnlar, savol-javoblar va rivoylanishingizga yordam beradigan videolar</p>
+                </div>
               </div>
-            </div>
-            
-            <div className="flex items-start gap-3">
-              <CheckCircle className="h-5 w-5 text-success mt-0.5 flex-shrink-0" />
-              <div>
-                <p className="font-medium text-foreground">Haftasiga yangi 2ta insho</p>
-                <p className="text-sm text-muted-foreground">Har dushanba va payshanba kunlari rivoylanish uchun insholar.</p>
+              
+              <div className="flex items-start gap-4">
+                <div className="w-8 h-8 rounded-full bg-success/15 flex items-center justify-center flex-shrink-0 mt-1">
+                  <CheckCircle className="h-5 w-5 text-success" />
+                </div>
+                <div className="space-y-1">
+                  <p className="font-semibold text-foreground text-lg">Parallel muhit</p>
+                  <p className="text-muted-foreground leading-relaxed">Fikrlash va o'sish istagidagi odamlar bilan muloqot qilish imkoni.</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start gap-4">
+                <div className="w-8 h-8 rounded-full bg-success/15 flex items-center justify-center flex-shrink-0 mt-1">
+                  <CheckCircle className="h-5 w-5 text-success" />
+                </div>
+                <div className="space-y-1">
+                  <p className="font-semibold text-foreground text-lg">Haftasiga yangi 2ta insho</p>
+                  <p className="text-muted-foreground leading-relaxed">Har dushanba va payshanba kunlari rivoylanish uchun insholar.</p>
+                </div>
               </div>
             </div>
           </div>
         </Card>
 
-        <div>
-          <p className="text-muted-foreground mb-4">To'lov turi</p>
-          <RadioGroup defaultValue="uzcard" className="space-y-3">
-            <Card className="p-4">
-              <div className="flex items-center space-x-3">
-                <RadioGroupItem value="foreign" id="foreign" />
-                <Label htmlFor="foreign" className="flex items-center gap-3 cursor-pointer flex-1">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-5 bg-gradient-to-r from-red-500 to-orange-400 rounded-sm"></div>
-                    <div className="w-8 h-5 bg-blue-600 rounded-sm flex items-center justify-center">
-                      <span className="text-white text-xs font-bold">V</span>
+        <div className="space-y-4">
+          <p className="text-muted-foreground font-medium text-lg">To'lov turi</p>
+          <RadioGroup defaultValue="uzcard" className="space-y-4">
+            <Card className="p-6 border-2 border-border/50 hover:border-primary/30 hover:shadow-md transition-all duration-200 hover:scale-[1.01] group">
+              <div className="flex items-center space-x-4">
+                <RadioGroupItem value="foreign" id="foreign" className="w-5 h-5" />
+                <Label htmlFor="foreign" className="flex items-center gap-4 cursor-pointer flex-1">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-6 bg-gradient-to-r from-red-500 to-orange-400 rounded-md shadow-sm"></div>
+                    <div className="w-10 h-6 bg-blue-600 rounded-md flex items-center justify-center shadow-sm">
+                      <span className="text-white text-sm font-bold">V</span>
                     </div>
                   </div>
-                  <div>
-                    <p className="font-medium">Chet-el kartasi</p>
+                  <div className="space-y-1">
+                    <p className="font-semibold text-foreground">Chet-el kartasi</p>
                     <p className="text-sm text-muted-foreground">Tribute orqali</p>
                   </div>
                 </Label>
               </div>
             </Card>
             
-            <Card className="p-4">
-              <div className="flex items-center space-x-3">
-                <RadioGroupItem value="uzcard" id="uzcard" />
-                <Label htmlFor="uzcard" className="flex items-center gap-3 cursor-pointer flex-1">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-5 bg-gradient-to-r from-blue-600 to-green-500 rounded-sm"></div>
-                    <div className="w-8 h-5 bg-gradient-to-r from-purple-600 to-blue-600 rounded-sm"></div>
+            <Card className="p-6 border-2 border-primary/20 bg-primary/5 hover:border-primary/40 hover:shadow-md transition-all duration-200 hover:scale-[1.01] group">
+              <div className="flex items-center space-x-4">
+                <RadioGroupItem value="uzcard" id="uzcard" className="w-5 h-5" />
+                <Label htmlFor="uzcard" className="flex items-center gap-4 cursor-pointer flex-1">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-6 bg-gradient-to-r from-blue-600 to-green-500 rounded-md shadow-sm"></div>
+                    <div className="w-10 h-6 bg-gradient-to-r from-purple-600 to-blue-600 rounded-md shadow-sm"></div>
                   </div>
-                  <div>
-                    <p className="font-medium">UZCARD / Humo</p>
+                  <div className="space-y-1">
+                    <p className="font-semibold text-foreground">UZCARD / Humo</p>
                     <p className="text-sm text-muted-foreground">Click to'lov tizimi orqali</p>
                   </div>
                 </Label>
@@ -194,40 +217,46 @@ const Index = () => {
       <Header title="Parallel Muhit" showBack={true} onBack={handleBack} />
       
       <div className="p-4 space-y-6">
-        <h2 className="text-xl font-semibold text-foreground">Bank kartasi ma'lumotlarini kiriting</h2>
-        
-        <div className="space-y-4">
-          <div>
-            <Input 
-              placeholder="0000 0000 0000 0000" 
-              className="text-lg py-6 rounded-xl border-2"
-            />
-          </div>
+        <div className="space-y-6">
+          <h2 className="text-2xl font-bold text-foreground">Bank kartasi ma'lumotlarini kiriting</h2>
           
-          <div>
-            <Input 
-              placeholder="MM/YY" 
-              className="text-lg py-6 rounded-xl border-2"
-            />
-          </div>
-        </div>
-
-        <div className="text-center text-sm text-muted-foreground space-y-2">
-          <p>Xavfsizlik maqsadida sizning bank kartangiz</p>
-          <p>ma'lumotlari Click xizmatining serverlarida</p>
-          <p>saqlanadi. Sizning shaxsingizga oid hech qanday</p>
-          <p>ma'lumot saqlamaydi. <span className="text-primary underline">Click ofertasi</span></p>
-        </div>
-
-        <div className="flex items-center justify-center gap-2 mt-8">
-          <span className="text-sm text-muted-foreground">Powered by</span>
-          <div className="flex items-center gap-1">
-            <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center">
-              <div className="w-3 h-3 bg-white rounded-full"></div>
+          <div className="space-y-5">
+            <div className="space-y-3">
+              <label className="text-sm font-medium text-muted-foreground">Karta raqami</label>
+              <Input 
+                placeholder="0000 0000 0000 0000" 
+                className="text-lg py-7 rounded-2xl border-2 focus:border-primary/50 transition-all duration-200 bg-card-accent"
+              />
             </div>
-            <span className="font-bold text-primary">click</span>
+            
+            <div className="space-y-3">
+              <label className="text-sm font-medium text-muted-foreground">Amal qilish muddati</label>
+              <Input 
+                placeholder="MM/YY" 
+                className="text-lg py-7 rounded-2xl border-2 focus:border-primary/50 transition-all duration-200 bg-card-accent"
+              />
+            </div>
           </div>
         </div>
+
+        <Card className="p-6 bg-gradient-secondary border-0 shadow-card">
+          <div className="text-center text-sm text-muted-foreground space-y-2 leading-relaxed">
+            <p>Xavfsizlik maqsadida sizning bank kartangiz</p>
+            <p>ma'lumotlari Click xizmatining serverlarida</p>
+            <p>saqlanadi. Sizning shaxsingizga oid hech qanday</p>
+            <p>ma'lumot saqlamaydi. <span className="text-primary underline font-medium">Click ofertasi</span></p>
+          </div>
+
+          <div className="flex items-center justify-center gap-3 mt-6">
+            <span className="text-sm text-muted-foreground font-medium">Powered by</span>
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 bg-primary rounded-full flex items-center justify-center shadow-sm">
+                <div className="w-3.5 h-3.5 bg-white rounded-full"></div>
+              </div>
+              <span className="font-bold text-primary text-lg">click</span>
+            </div>
+          </div>
+        </Card>
 
         <PrimaryButton>
           Kodini olish

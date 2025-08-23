@@ -8,69 +8,87 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* App Background Colors */
-    --background: 215 24% 97%;
+    /* App Background Colors - Modern gradients */
+    --background: 220 15% 98%;
+    --background-secondary: 220 10% 96%;
     --foreground: 210 15% 15%;
 
-    /* Card Colors */
+    /* Card Colors - Enhanced with subtle gradients */
     --card: 0 0% 100%;
     --card-foreground: 210 15% 15%;
+    --card-accent: 220 20% 99%;
 
     /* Popover Colors */
     --popover: 0 0% 100%;
     --popover-foreground: 210 15% 15%;
 
-    /* Primary Navy Theme */
-    --primary: 210 30% 20%;
+    /* Primary - Modern blue gradient */
+    --primary: 221 83% 53%;
     --primary-foreground: 0 0% 100%;
-    --primary-hover: 210 30% 25%;
+    --primary-hover: 221 83% 58%;
+    --primary-light: 221 60% 90%;
+    --primary-dark: 221 83% 43%;
 
-    /* Secondary Light Theme */
-    --secondary: 210 20% 95%;
+    /* Secondary - Sophisticated grays */
+    --secondary: 220 15% 96%;
     --secondary-foreground: 210 15% 15%;
+    --secondary-hover: 220 15% 94%;
 
-    /* Muted Colors */
-    --muted: 210 20% 96%;
-    --muted-foreground: 210 10% 50%;
+    /* Muted Colors - Better contrast */
+    --muted: 220 13% 95%;
+    --muted-foreground: 220 9% 46%;
 
-    /* Accent Colors */
-    --accent: 210 20% 95%;
+    /* Accent Colors - Subtle highlights */
+    --accent: 220 13% 95%;
     --accent-foreground: 210 15% 15%;
+    --accent-hover: 220 13% 92%;
 
     /* Destructive Colors */
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Border and Input */
-    --border: 210 20% 88%;
-    --input: 210 20% 88%;
-    --ring: 210 30% 20%;
+    /* Border and Input - More refined */
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --input-focus: 221 83% 53%;
+    --ring: 221 83% 53%;
 
-    /* Success Colors */
+    /* Success Colors - Fresh green */
     --success: 142 76% 36%;
     --success-foreground: 0 0% 100%;
+    --success-light: 142 40% 85%;
 
-    /* Warning Colors */
-    --warning: 38 92% 50%;
+    /* Warning Colors - Warm orange */
+    --warning: 32 95% 44%;
     --warning-foreground: 0 0% 100%;
+    --warning-light: 32 60% 90%;
 
-    /* Header specific */
-    --header-bg: 210 30% 18%;
+    /* Header - Modern gradient */
+    --header-bg: 221 39% 11%;
     --header-foreground: 0 0% 100%;
 
-    /* Radius */
-    --radius: 12px;
+    /* Radius - More modern */
+    --radius: 16px;
 
-    /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(210 30% 20%), hsl(210 30% 25%));
-    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%), hsl(210 20% 98%));
+    /* Enhanced Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(221 83% 53%) 0%, hsl(221 83% 58%) 100%);
+    --gradient-secondary: linear-gradient(135deg, hsl(220 15% 96%) 0%, hsl(220 13% 95%) 100%);
+    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%) 0%, hsl(220 20% 99%) 100%);
+    --gradient-header: linear-gradient(135deg, hsl(221 39% 11%) 0%, hsl(221 39% 16%) 100%);
+    --gradient-warning: linear-gradient(135deg, hsl(38 92% 50%) 0%, hsl(32 95% 44%) 100%);
 
-    /* Shadows */
-    --shadow-card: 0 2px 10px -2px hsl(210 10% 50% / 0.1);
-    --shadow-button: 0 2px 8px -2px hsl(210 30% 20% / 0.2);
+    /* Enhanced Shadows */
+    --shadow-xs: 0 1px 2px 0 hsl(220 13% 69% / 0.05);
+    --shadow-sm: 0 1px 3px 0 hsl(220 13% 69% / 0.1), 0 1px 2px -1px hsl(220 13% 69% / 0.1);
+    --shadow-md: 0 4px 6px -1px hsl(220 13% 69% / 0.1), 0 2px 4px -2px hsl(220 13% 69% / 0.1);
+    --shadow-lg: 0 10px 15px -3px hsl(220 13% 69% / 0.1), 0 4px 6px -4px hsl(220 13% 69% / 0.1);
+    --shadow-card: 0 4px 6px -1px hsl(220 13% 69% / 0.05), 0 2px 4px -2px hsl(220 13% 69% / 0.05);
+    --shadow-button: 0 4px 14px 0 hsl(221 83% 53% / 0.2);
+    --shadow-button-hover: 0 6px 20px 0 hsl(221 83% 53% / 0.25);
 
-    /* Animations */
+    /* Smooth Animations */
     --transition-smooth: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
     --sidebar-background: 0 0% 98%;
 

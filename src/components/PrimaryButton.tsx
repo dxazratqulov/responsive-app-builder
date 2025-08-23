@@ -25,11 +25,13 @@ export const PrimaryButton = ({
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        "w-full bg-primary hover:bg-primary-hover text-primary-foreground font-medium py-6 rounded-xl shadow-lg transition-all duration-200 hover:shadow-xl disabled:opacity-50",
+        "w-full bg-gradient-primary hover:shadow-button-hover text-primary-foreground font-semibold py-6 rounded-2xl shadow-button transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:hover:scale-100 relative overflow-hidden group",
         className
       )}
     >
-      {children}
+      {/* Shine effect */}
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
+      <span className="relative z-10">{children}</span>
     </Button>
   );
 };
