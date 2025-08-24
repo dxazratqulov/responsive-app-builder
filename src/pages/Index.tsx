@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Header } from "@/components/Header";
 import { BalanceCard } from "@/components/BalanceCard";
 import { MenuItem } from "@/components/MenuItem";
@@ -26,10 +26,68 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 
 type Page = "dashboard" | "subscription" | "card-input" | "profile" | "payment-history" | "faq";
 
+interface UserProfile {
+  is_subscribed: boolean;
+  rest_of_days: number;
+}
+
 const Index = () => {
   const [currentPage, setCurrentPage] = useState<Page>("dashboard");
   const [showCardForm, setShowCardForm] = useState(false);
   const [paginationPage, setPaginationPage] = useState(1);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Extract API key from URL parameters
+  const getApiKeyFromUrl = () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('x_api_key');
+  };
+
+  // Fetch user profile data
+  const fetchUserProfile = async () => {
+    const apiKey = getApiKeyFromUrl();
+    
+    if (!apiKey) {
+      setError("Siz hali ro'yhatdan o'tmagansiz");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const response = await fetch('https://e08dfb102800.ngrok-free.app/api/common/profile/me/', {
+        method: 'GET',
+        headers: {
+          'X-API-KEY': apiKey,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.status === 401) {
+        setError("Siz hali ro'yhatdan o'tmagansiz");
+        setLoading(false);
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error('API xatolik');
+      }
+
+      const data: UserProfile = await response.json();
+      setUserProfile(data);
+      setError(null);
+    } catch (err) {
+      setError("Siz hali ro'yhatdan o'tmagansiz");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch profile data on component mount
+  useEffect(() => {
+    fetchUserProfile();
+  }, []);
 
   const handleNavigation = (page: Page) => {
     setCurrentPage(page);
@@ -43,76 +101,117 @@ const Index = () => {
     }
   };
 
-  const renderDashboard = () => (
-    <div className="min-h-screen bg-background">
-      <Header title="Parallel Muhit" showBack={false} />
-      
-      <div className="p-4 space-y-4">
-        <BalanceCard 
-          label="Obuna tugashiga"
-          amount="0"
-          currency="kun"
-        />
-
-        {/* Subscription Renewal Prompt */}
-        <Card className="p-8 bg-gradient-warning border-0 shadow-lg relative overflow-hidden animate-scale-in">
-          {/* Decorative elements */}
-          <div className="absolute -top-4 -right-4 w-20 h-20 bg-white/10 rounded-full" />
-          <div className="absolute -bottom-2 -left-2 w-16 h-16 bg-white/5 rounded-full" />
+  const renderDashboard = () => {
+    // Show error message if API key is missing or API returns 401
+    if (error) {
+      return (
+        <div className="min-h-screen bg-background">
+          <Header title="Parallel Muhit" showBack={false} />
           
-          <div className="text-center space-y-6 relative z-10">
-            <div className="space-y-2">
-              <h3 className="text-xl font-bold text-warning-foreground">Obunani yangilaysizmi?</h3>
-              <p className="text-warning-foreground/90 text-sm">Sizning obunangiz tugash arafasida</p>
-            </div>
-            
-            <div className="flex gap-4 w-full">
-              <Button 
-                className="flex-1 bg-card hover:bg-card-accent text-foreground shadow-md hover:shadow-lg border border-white/20 py-6 rounded-2xl font-semibold transition-all duration-200 hover:scale-[1.02]"
-                onClick={() => handleNavigation("subscription")}
-              >
-                Ha
-              </Button>
-              <Button 
-                className="flex-1 bg-card hover:bg-card-accent text-foreground shadow-md hover:shadow-lg border border-white/20 py-6 rounded-2xl font-semibold transition-all duration-200 hover:scale-[1.02]"
-                onClick={() => {}}
-              >
-                Yo'q
-              </Button>
+          <div className="p-4 space-y-4">
+            <div className="flex flex-col items-center justify-center py-16 space-y-4">
+              <div className="w-16 h-16 rounded-full bg-destructive/20 flex items-center justify-center">
+                <ExternalLink className="h-8 w-8 text-destructive" />
+              </div>
+              <div className="text-center space-y-2">
+                <h3 className="text-lg font-semibold text-foreground">Xatolik yuz berdi</h3>
+                <p className="text-muted-foreground">{error}</p>
+              </div>
             </div>
           </div>
-        </Card>
+        </div>
+      );
+    }
 
-        <div className="space-y-3">
-          <MenuItem 
-            icon={Edit3} 
-            title="Ma'lumotlarni o'zgartirish"
-            onClick={() => handleNavigation("profile")}
+    // Show loading state
+    if (loading) {
+      return (
+        <div className="min-h-screen bg-background">
+          <Header title="Parallel Muhit" showBack={false} />
+          
+          <div className="p-4 space-y-4">
+            <div className="flex flex-col items-center justify-center py-16 space-y-4">
+              <div className="w-8 h-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+              <p className="text-muted-foreground">Ma'lumotlar yuklanmoqda...</p>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="min-h-screen bg-background">
+        <Header title="Parallel Muhit" showBack={false} />
+        
+        <div className="p-4 space-y-4">
+          <BalanceCard 
+            label="Obuna tugashiga"
+            amount={userProfile?.rest_of_days?.toString() || "0"}
+            currency="kun"
           />
-          <MenuItem 
-            icon={CreditCard} 
-            title="To'lovlar tarixi"
-            onClick={() => handleNavigation("payment-history")}
-          />
-          <MenuItem 
-            icon={FileText} 
-            title="Shartnoma"
-            onClick={() => {}}
-          />
-          <MenuItem 
-            icon={HelpCircle} 
-            title="FAQ"
-            onClick={() => handleNavigation("faq")}
-          />
-          <MenuItem 
-            icon={MessageCircle} 
-            title="Aloqa"
-            onClick={() => window.open("https://t.me/Xazratqulov_Diyorbek", "_blank")}
-          />
+
+          {/* Subscription Renewal Prompt - Only show if not subscribed */}
+          {userProfile && !userProfile.is_subscribed && (
+            <Card className="p-8 bg-gradient-warning border-0 shadow-lg relative overflow-hidden animate-scale-in">
+              {/* Decorative elements */}
+              <div className="absolute -top-4 -right-4 w-20 h-20 bg-white/10 rounded-full" />
+              <div className="absolute -bottom-2 -left-2 w-16 h-16 bg-white/5 rounded-full" />
+              
+              <div className="text-center space-y-6 relative z-10">
+                <div className="space-y-2">
+                  <h3 className="text-xl font-bold text-warning-foreground">Obunani yangilaysizmi?</h3>
+                  <p className="text-warning-foreground/90 text-sm">Sizning obunangiz tugash arafasida</p>
+                </div>
+                
+                <div className="flex gap-4 w-full">
+                  <Button 
+                    className="flex-1 bg-card hover:bg-card-accent text-foreground shadow-md hover:shadow-lg border border-white/20 py-6 rounded-2xl font-semibold transition-all duration-200 hover:scale-[1.02]"
+                    onClick={() => handleNavigation("subscription")}
+                  >
+                    Ha
+                  </Button>
+                  <Button 
+                    className="flex-1 bg-card hover:bg-card-accent text-foreground shadow-md hover:shadow-lg border border-white/20 py-6 rounded-2xl font-semibold transition-all duration-200 hover:scale-[1.02]"
+                    onClick={() => {}}
+                  >
+                    Yo'q
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          )}
+
+          <div className="space-y-3">
+            <MenuItem 
+              icon={Edit3} 
+              title="Ma'lumotlarni o'zgartirish"
+              onClick={() => handleNavigation("profile")}
+            />
+            <MenuItem 
+              icon={CreditCard} 
+              title="To'lovlar tarixi"
+              onClick={() => handleNavigation("payment-history")}
+            />
+            <MenuItem 
+              icon={FileText} 
+              title="Shartnoma"
+              onClick={() => {}}
+            />
+            <MenuItem 
+              icon={HelpCircle} 
+              title="FAQ"
+              onClick={() => handleNavigation("faq")}
+            />
+            <MenuItem 
+              icon={MessageCircle} 
+              title="Aloqa"
+              onClick={() => window.open("https://t.me/Xazratqulov_Diyorbek", "_blank")}
+            />
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   const renderSubscription = () => (
     <div className="min-h-screen bg-background">
