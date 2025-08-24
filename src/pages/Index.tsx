@@ -73,8 +73,7 @@ const Index = () => {
                 Ha
               </Button>
               <Button 
-                variant="outline" 
-                className="flex-1 py-6 border-2 border-white/30 text-warning-foreground hover:bg-white/10 hover:border-white/40 rounded-2xl font-semibold transition-all duration-200 hover:scale-[1.02] bg-white/5"
+                className="flex-1 bg-card hover:bg-card-accent text-foreground shadow-md hover:shadow-lg border border-white/20 py-6 rounded-2xl font-semibold transition-all duration-200 hover:scale-[1.02]"
                 onClick={() => {}}
               >
                 Yo'q
@@ -270,7 +269,7 @@ const Index = () => {
   );
 
   const renderPaymentHistory = () => {
-    const [currentPage, setCurrentPagePagination] = useState(1);
+    const [paginationPage, setPaginationPage] = useState(1);
     const paymentsPerPage = 10;
     
     // Mock data - replace with real API data
@@ -281,7 +280,7 @@ const Index = () => {
     ];
 
     const totalPages = Math.ceil(payments.length / paymentsPerPage);
-    const startIndex = (currentPage - 1) * paymentsPerPage;
+    const startIndex = (paginationPage - 1) * paymentsPerPage;
     const currentPayments = payments.slice(startIndex, startIndex + paymentsPerPage);
 
     return (
@@ -331,16 +330,16 @@ const Index = () => {
                     <PaginationContent>
                       <PaginationItem>
                         <PaginationPrevious 
-                          onClick={() => setCurrentPagePagination(Math.max(1, currentPage - 1))}
-                          className={currentPage === 1 ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
+                          onClick={() => setPaginationPage(Math.max(1, paginationPage - 1))}
+                          className={paginationPage === 1 ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
                         />
                       </PaginationItem>
                       
                       {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                         <PaginationItem key={page}>
                           <PaginationLink
-                            isActive={page === currentPage}
-                            onClick={() => setCurrentPagePagination(page)}
+                            isActive={page === paginationPage}
+                            onClick={() => setPaginationPage(page)}
                             className="cursor-pointer"
                           >
                             {page}
@@ -350,8 +349,8 @@ const Index = () => {
                       
                       <PaginationItem>
                         <PaginationNext 
-                          onClick={() => setCurrentPagePagination(Math.min(totalPages, currentPage + 1))}
-                          className={currentPage === totalPages ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
+                          onClick={() => setPaginationPage(Math.min(totalPages, paginationPage + 1))}
+                          className={paginationPage === totalPages ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
                         />
                       </PaginationItem>
                     </PaginationContent>
