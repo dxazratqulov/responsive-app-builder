@@ -29,6 +29,7 @@ type Page = "dashboard" | "subscription" | "card-input" | "profile" | "payment-h
 const Index = () => {
   const [currentPage, setCurrentPage] = useState<Page>("dashboard");
   const [showCardForm, setShowCardForm] = useState(false);
+  const [paginationPage, setPaginationPage] = useState(1);
 
   const handleNavigation = (page: Page) => {
     setCurrentPage(page);
@@ -269,7 +270,6 @@ const Index = () => {
   );
 
   const renderPaymentHistory = () => {
-    const [paginationPage, setPaginationPage] = useState(1);
     const paymentsPerPage = 10;
     
     // Mock data - replace with real API data
