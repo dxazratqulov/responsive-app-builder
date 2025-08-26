@@ -56,7 +56,7 @@ const Index = () => {
     }
 
     try {
-      const response = await fetch('http://176.124.212.74:8005/api/common/profile/me/', {
+      const response = await fetch('https://abbosxons-bot.xazratqulov.uz/api/common/profile/me/', {
         method: 'GET',
         headers: {
           'X-API-KEY': apiKey,
