@@ -36,6 +36,18 @@ interface FAQ {
   answer: string;
 }
 
+interface Transaction {
+  amount: string;
+  created_at: string;
+}
+
+interface TransactionHistory {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: Transaction[];
+}
+
 const Index = () => {
   const [currentPage, setCurrentPage] = useState<Page>("dashboard");
   const [showCardForm, setShowCardForm] = useState(false);
@@ -45,6 +57,8 @@ const Index = () => {
   const [error, setError] = useState<string | null>(null);
   const [faqs, setFaqs] = useState<FAQ[]>([]);
   const [faqLoading, setFaqLoading] = useState(false);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [transactionLoading, setTransactionLoading] = useState(false);
 
   // Extract API key from URL parameters
   const getApiKeyFromUrl = () => {
@@ -112,12 +126,44 @@ const Index = () => {
     }
   };
 
+  const fetchTransactionHistory = async () => {
+    const apiKey = getApiKeyFromUrl();
+    
+    if (!apiKey) {
+      return;
+    }
+
+    setTransactionLoading(true);
+    try {
+      const response = await fetch('https://abbosxons-bot.xazratqulov.uz/api/common/profile/transaction-history/', {
+        method: 'GET',
+        headers: {
+          'X-API-KEY': apiKey,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.ok) {
+        const data: TransactionHistory = await response.json();
+        setTransactions(data.results);
+      }
+    } catch (error) {
+      console.error('Transaction history fetch error:', error);
+    } finally {
+      setTransactionLoading(false);
+    }
+  };
+
   const handleNavigation = (page: Page) => {
     setCurrentPage(page);
     setPaginationPage(1);
     
     if (page === "faq" && faqs.length === 0) {
       fetchFAQs();
+    }
+    
+    if (page === "payment-history" && transactions.length === 0) {
+      fetchTransactionHistory();
     }
   };
 
@@ -398,24 +444,31 @@ const Index = () => {
 
   const renderPaymentHistory = () => {
     const paymentsPerPage = 10;
-    
-    // Mock data - replace with real API data
-    const payments = [
-      { id: 1, date: "2024-01-15", amount: 67000, status: "Muvaffaqiyatli" },
-      { id: 2, date: "2023-12-15", amount: 67000, status: "Muvaffaqiyatli" },
-      { id: 3, date: "2023-11-15", amount: 67000, status: "Muvaffaqiyatli" },
-    ];
-
-    const totalPages = Math.ceil(payments.length / paymentsPerPage);
+    const totalPages = Math.ceil(transactions.length / paymentsPerPage);
     const startIndex = (paginationPage - 1) * paymentsPerPage;
-    const currentPayments = payments.slice(startIndex, startIndex + paymentsPerPage);
+    const currentTransactions = transactions.slice(startIndex, startIndex + paymentsPerPage);
+
+    // Format date function
+    const formatDate = (dateString: string) => {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('uz-UZ', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      });
+    };
 
     return (
       <div className="min-h-screen bg-background">
         <Header title="To'lovlar tarixi" showBack={true} onBack={handleBack} />
         
         <div className="p-4 space-y-4">
-          {payments.length === 0 ? (
+          {transactionLoading ? (
+            <div className="text-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+              <p className="text-muted-foreground mt-2">To'lovlar tarixi yuklanmoqda...</p>
+            </div>
+          ) : transactions.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 space-y-4">
               <div className="w-16 h-16 rounded-full bg-muted/20 flex items-center justify-center">
                 <CreditCard className="h-8 w-8 text-muted-foreground" />
@@ -428,23 +481,23 @@ const Index = () => {
           ) : (
             <>
               <div className="space-y-3">
-                {currentPayments.map((payment) => (
-                  <Card key={payment.id} className="p-4 hover:shadow-md transition-shadow">
+                {currentTransactions.map((transaction, index) => (
+                  <Card key={index} className="p-4 hover:shadow-md transition-shadow">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-success/15 flex items-center justify-center">
                           <CheckCircle className="h-5 w-5 text-success" />
                         </div>
                         <div>
-                          <p className="font-medium text-foreground">{payment.status}</p>
+                          <p className="font-medium text-foreground">Muvaffaqiyatli</p>
                           <p className="text-sm text-muted-foreground flex items-center gap-1">
                             <Clock className="h-3 w-3" />
-                            {payment.date}
+                            {formatDate(transaction.created_at)}
                           </p>
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="font-bold text-foreground">{payment.amount.toLocaleString()} UZS</p>
+                        <p className="font-bold text-foreground">{parseFloat(transaction.amount).toLocaleString()} UZS</p>
                       </div>
                     </div>
                   </Card>
