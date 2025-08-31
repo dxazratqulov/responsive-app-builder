@@ -59,6 +59,7 @@ const Index = () => {
   const [faqLoading, setFaqLoading] = useState(false);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [transactionLoading, setTransactionLoading] = useState(false);
+  const [transactionCount, setTransactionCount] = useState(0);
 
   // Extract API key from URL parameters
   const getApiKeyFromUrl = () => {
@@ -126,7 +127,7 @@ const Index = () => {
     }
   };
 
-  const fetchTransactionHistory = async () => {
+  const fetchTransactionHistory = async (page: number = 1) => {
     const apiKey = getApiKeyFromUrl();
     
     if (!apiKey) {
@@ -135,7 +136,7 @@ const Index = () => {
 
     setTransactionLoading(true);
     try {
-      const response = await fetch('https://abbosxons-bot.xazratqulov.uz/api/common/profile/transaction-history/', {
+      const response = await fetch(`https://abbosxons-bot.xazratqulov.uz/api/common/profile/transaction-history/?page=${page}`, {
         method: 'GET',
         headers: {
           'X-API-KEY': apiKey,
@@ -146,6 +147,7 @@ const Index = () => {
       if (response.ok) {
         const data: TransactionHistory = await response.json();
         setTransactions(data.results);
+        setTransactionCount(data.count);
       }
     } catch (error) {
       console.error('Transaction history fetch error:', error);
@@ -162,8 +164,8 @@ const Index = () => {
       fetchFAQs();
     }
     
-    if (page === "payment-history" && transactions.length === 0) {
-      fetchTransactionHistory();
+    if (page === "payment-history") {
+      fetchTransactionHistory(1);
     }
   };
 
@@ -444,9 +446,12 @@ const Index = () => {
 
   const renderPaymentHistory = () => {
     const paymentsPerPage = 10;
-    const totalPages = Math.ceil(transactions.length / paymentsPerPage);
-    const startIndex = (paginationPage - 1) * paymentsPerPage;
-    const currentTransactions = transactions.slice(startIndex, startIndex + paymentsPerPage);
+    const totalPages = Math.ceil(transactionCount / paymentsPerPage);
+
+    const handlePageChange = (page: number) => {
+      setPaginationPage(page);
+      fetchTransactionHistory(page);
+    };
 
     // Format date function
     const formatDate = (dateString: string) => {
@@ -481,7 +486,7 @@ const Index = () => {
           ) : (
             <>
               <div className="space-y-3">
-                {currentTransactions.map((transaction, index) => (
+                {transactions.map((transaction, index) => (
                   <Card key={index} className="p-4 hover:shadow-md transition-shadow">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
@@ -510,26 +515,38 @@ const Index = () => {
                     <PaginationContent>
                       <PaginationItem>
                         <PaginationPrevious 
-                          onClick={() => setPaginationPage(Math.max(1, paginationPage - 1))}
+                          onClick={() => handlePageChange(Math.max(1, paginationPage - 1))}
                           className={paginationPage === 1 ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
                         />
                       </PaginationItem>
                       
-                      {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                        <PaginationItem key={page}>
-                          <PaginationLink
-                            isActive={page === paginationPage}
-                            onClick={() => setPaginationPage(page)}
-                            className="cursor-pointer"
-                          >
-                            {page}
-                          </PaginationLink>
-                        </PaginationItem>
-                      ))}
+                      {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                        let page;
+                        if (totalPages <= 5) {
+                          page = i + 1;
+                        } else if (paginationPage <= 3) {
+                          page = i + 1;
+                        } else if (paginationPage >= totalPages - 2) {
+                          page = totalPages - 4 + i;
+                        } else {
+                          page = paginationPage - 2 + i;
+                        }
+                        return (
+                          <PaginationItem key={page}>
+                            <PaginationLink
+                              isActive={page === paginationPage}
+                              onClick={() => handlePageChange(page)}
+                              className="cursor-pointer"
+                            >
+                              {page}
+                            </PaginationLink>
+                          </PaginationItem>
+                        );
+                      })}
                       
                       <PaginationItem>
                         <PaginationNext 
-                          onClick={() => setPaginationPage(Math.min(totalPages, paginationPage + 1))}
+                          onClick={() => handlePageChange(Math.min(totalPages, paginationPage + 1))}
                           className={paginationPage === totalPages ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
                         />
                       </PaginationItem>
