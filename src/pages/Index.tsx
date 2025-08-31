@@ -31,6 +31,11 @@ interface UserProfile {
   rest_of_days: number;
 }
 
+interface FAQ {
+  question: string;
+  answer: string;
+}
+
 const Index = () => {
   const [currentPage, setCurrentPage] = useState<Page>("dashboard");
   const [showCardForm, setShowCardForm] = useState(false);
@@ -38,6 +43,8 @@ const Index = () => {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [faqs, setFaqs] = useState<FAQ[]>([]);
+  const [faqLoading, setFaqLoading] = useState(false);
 
   // Extract API key from URL parameters
   const getApiKeyFromUrl = () => {
@@ -89,8 +96,29 @@ const Index = () => {
     fetchUserProfile();
   }, []);
 
+  const fetchFAQs = async () => {
+    setFaqLoading(true);
+    try {
+      const response = await fetch('https://abbosxons-bot.xazratqulov.uz/api/common/extra/faq/');
+      
+      if (response.ok) {
+        const data = await response.json();
+        setFaqs(data);
+      }
+    } catch (error) {
+      console.error('FAQ fetch error:', error);
+    } finally {
+      setFaqLoading(false);
+    }
+  };
+
   const handleNavigation = (page: Page) => {
     setCurrentPage(page);
+    setPaginationPage(1);
+    
+    if (page === "faq" && faqs.length === 0) {
+      fetchFAQs();
+    }
   };
 
   const handleBack = () => {
@@ -464,36 +492,19 @@ const Index = () => {
   };
 
   const renderFAQ = () => {
-    const faqs = [
-      {
-        question: "Obuna qanday to'lanadi?",
-        answer: "Obuna UzCard, Humo kartalar orqali Click to'lov tizimi yoki chet-el kartalar orqali Tribute to'lov tizimi orqali to'lanadi."
-      },
-      {
-        question: "Obuna summasi qancha?",
-        answer: "Oylik obuna summasi 67,000 so'm."
-      },
-      {
-        question: "Obunani qanday bekor qilishim mumkin?",
-        answer: "Obunani bekor qilish uchun admin bilan bog'laning yoki profil bo'limidan obunani to'xtatishingiz mumkin."
-      },
-      {
-        question: "Pul qaytarib berilishini?",
-        answer: "Foydalanilmagan vaqt uchun pul qaytarib berilmaydi. Obuna yakunida avtomatik to'xtatiladi."
-      },
-      {
-        question: "Texnik yordam qanday olishim mumkin?",
-        answer: "Texnik yordam uchun bizning admin bilan bog'laning yoki FAQ bo'limini ko'rib chiqing."
-      }
-    ];
-
     return (
       <div className="min-h-screen bg-background">
         <Header title="FAQ" showBack={true} onBack={handleBack} />
         
         <div className="p-4 space-y-4">
-          <div className="space-y-3">
-            {faqs.map((faq, index) => (
+          {faqLoading ? (
+            <div className="text-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+              <p className="text-muted-foreground mt-2">FAQ ma'lumotlari yuklanmoqda...</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {faqs.map((faq, index) => (
               <Collapsible key={index}>
                 <CollapsibleTrigger asChild>
                   <Card className="p-4 cursor-pointer hover:bg-accent/50 transition-colors">
@@ -509,8 +520,9 @@ const Index = () => {
                   </Card>
                 </CollapsibleContent>
               </Collapsible>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
           
           <Card className="p-6 bg-gradient-card border-0 shadow-lg">
             <div className="text-center space-y-4">
