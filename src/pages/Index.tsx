@@ -64,6 +64,7 @@ const Index = () => {
   const [paymentReceipt, setPaymentReceipt] = useState<File | null>(null);
   const [uploadLoading, setUploadLoading] = useState(false);
   const [uploadMessage, setUploadMessage] = useState<string | null>(null);
+  const [showPaymentUpload, setShowPaymentUpload] = useState(false);
 
   // Extract API key from URL parameters
   const getApiKeyFromUrl = () => {
@@ -279,54 +280,95 @@ const Index = () => {
               <div className="text-center space-y-6 relative z-10">
                 <div className="space-y-2">
                   <h3 className="text-xl font-bold text-warning-foreground">Obunani yangilaysizmi?</h3>
-                  <p className="text-warning-foreground/90 text-sm">To'lov chekingizni yuklang, admin tekshirib obunani yoqadi</p>
+                  <p className="text-warning-foreground/90 text-sm">To'lov amalga oshirgan bo'lsangiz, chekni yuklang</p>
                 </div>
                 
-                <div className="space-y-4">
-                  <div className="flex flex-col items-center space-y-3">
-                    <Label htmlFor="payment-receipt" className="cursor-pointer">
-                      <Card className="p-4 border-2 border-dashed border-white/30 hover:border-white/50 transition-colors">
-                        <div className="flex flex-col items-center space-y-2">
-                          {paymentReceipt ? (
-                            <>
-                              <FileImage className="h-8 w-8 text-warning-foreground" />
-                              <span className="text-sm text-warning-foreground">{paymentReceipt.name}</span>
-                            </>
-                          ) : (
-                            <>
-                              <Upload className="h-8 w-8 text-warning-foreground/70" />
-                              <span className="text-sm text-warning-foreground/90">To'lov chekini yuklash</span>
-                            </>
-                          )}
-                        </div>
-                      </Card>
-                    </Label>
-                    <Input
-                      id="payment-receipt"
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) setPaymentReceipt(file);
-                      }}
-                    />
+                {!showPaymentUpload ? (
+                  <div className="flex gap-3 justify-center">
+                    <Button 
+                      variant="outline"
+                      className="bg-white/10 text-warning-foreground border-white/30 hover:bg-white/20 px-8 py-3 rounded-2xl font-semibold"
+                      onClick={() => setShowPaymentUpload(false)}
+                    >
+                      Yo'q
+                    </Button>
+                    <Button 
+                      className="bg-white text-warning px-8 py-3 rounded-2xl font-semibold hover:bg-white/90"
+                      onClick={() => setShowPaymentUpload(true)}
+                    >
+                      Ha
+                    </Button>
                   </div>
-                  
-                  {uploadMessage && (
-                    <div className={`text-sm p-3 rounded-lg ${uploadMessage.includes('muvaffaqiyatli') ? 'bg-success/20 text-success-foreground' : 'bg-destructive/20 text-destructive-foreground'}`}>
-                      {uploadMessage}
+                ) : (
+                  <div className="space-y-4">
+                    <div className="flex flex-col items-center space-y-3">
+                      <Label htmlFor="payment-receipt" className="cursor-pointer w-full">
+                        <div className="border-2 border-dashed border-white/30 hover:border-white/50 transition-colors rounded-2xl p-8 bg-white/5 hover:bg-white/10">
+                          <div className="flex flex-col items-center space-y-4">
+                            {paymentReceipt ? (
+                              <>
+                                <div className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center">
+                                  <FileImage className="h-8 w-8 text-warning-foreground" />
+                                </div>
+                                <div className="text-center">
+                                  <p className="text-warning-foreground font-medium">{paymentReceipt.name}</p>
+                                  <p className="text-warning-foreground/70 text-sm">Fayl tanlandi</p>
+                                </div>
+                              </>
+                            ) : (
+                              <>
+                                <div className="w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center">
+                                  <Upload className="h-8 w-8 text-warning-foreground/70" />
+                                </div>
+                                <div className="text-center">
+                                  <p className="text-warning-foreground font-medium">To'lov chekini yuklang</p>
+                                  <p className="text-warning-foreground/70 text-sm">JPG, PNG formatlarida</p>
+                                </div>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </Label>
+                      <Input
+                        id="payment-receipt"
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) setPaymentReceipt(file);
+                        }}
+                      />
                     </div>
-                  )}
-                  
-                  <Button 
-                    className="w-full bg-card hover:bg-card-accent text-foreground shadow-md hover:shadow-lg border border-white/20 py-6 rounded-2xl font-semibold transition-all duration-200 hover:scale-[1.02] disabled:opacity-50"
-                    onClick={uploadPaymentReceipt}
-                    disabled={!paymentReceipt || uploadLoading}
-                  >
-                    {uploadLoading ? "Yuklanmoqda..." : "Chekni yuborish"}
-                  </Button>
-                </div>
+                    
+                    {uploadMessage && (
+                      <div className={`text-sm p-3 rounded-lg ${uploadMessage.includes('muvaffaqiyatli') ? 'bg-success/20 text-success-foreground' : 'bg-destructive/20 text-destructive-foreground'}`}>
+                        {uploadMessage}
+                      </div>
+                    )}
+                    
+                    <div className="flex gap-3">
+                      <Button 
+                        variant="outline"
+                        className="flex-1 bg-white/10 text-warning-foreground border-white/30 hover:bg-white/20 py-3 rounded-2xl font-semibold"
+                        onClick={() => {
+                          setShowPaymentUpload(false);
+                          setPaymentReceipt(null);
+                          setUploadMessage(null);
+                        }}
+                      >
+                        Bekor qilish
+                      </Button>
+                      <Button 
+                        className="flex-1 bg-white text-warning hover:bg-white/90 py-3 rounded-2xl font-semibold transition-all duration-200 hover:scale-[1.02] disabled:opacity-50"
+                        onClick={uploadPaymentReceipt}
+                        disabled={!paymentReceipt || uploadLoading}
+                      >
+                        {uploadLoading ? "Yuklanmoqda..." : "Chekni yuborish"}
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </div>
             </Card>
           )}
