@@ -14,7 +14,9 @@ import {
   Calendar,
   ChevronDown,
   Clock,
-  ExternalLink
+  ExternalLink,
+  Upload,
+  FileImage
 } from "lucide-react";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { Card } from "@/components/ui/card";
@@ -24,7 +26,7 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
-type Page = "dashboard" | "subscription" | "card-input" | "profile" | "payment-history" | "faq";
+type Page = "dashboard" | "payment-history" | "faq";
 
 interface UserProfile {
   is_subscribed: boolean;
@@ -50,7 +52,6 @@ interface TransactionHistory {
 
 const Index = () => {
   const [currentPage, setCurrentPage] = useState<Page>("dashboard");
-  const [showCardForm, setShowCardForm] = useState(false);
   const [paginationPage, setPaginationPage] = useState(1);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -60,6 +61,9 @@ const Index = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [transactionLoading, setTransactionLoading] = useState(false);
   const [transactionCount, setTransactionCount] = useState(0);
+  const [paymentReceipt, setPaymentReceipt] = useState<File | null>(null);
+  const [uploadLoading, setUploadLoading] = useState(false);
+  const [uploadMessage, setUploadMessage] = useState<string | null>(null);
 
   // Extract API key from URL parameters
   const getApiKeyFromUrl = () => {
@@ -156,6 +160,49 @@ const Index = () => {
     }
   };
 
+  // Upload payment receipt function
+  const uploadPaymentReceipt = async () => {
+    const apiKey = getApiKeyFromUrl();
+    
+    if (!apiKey || !paymentReceipt) {
+      setUploadMessage("API kalit yoki fayl topilmadi");
+      return;
+    }
+
+    setUploadLoading(true);
+    setUploadMessage(null);
+
+    try {
+      const formData = new FormData();
+      formData.append('payment_check', paymentReceipt);
+
+      const response = await fetch('https://abbosxons-bot.xazratqulov.uz/api/common/profile/payment-check/', {
+        method: 'POST',
+        headers: {
+          'X-API-KEY': apiKey,
+        },
+        body: formData
+      });
+
+      if (response.status === 201) {
+        setUploadMessage("To'lov cheki muvaffaqiyatli yuborildi! Tekshirish uchun kutib turing.");
+        setPaymentReceipt(null);
+        // Reset file input
+        const fileInput = document.getElementById('payment-receipt') as HTMLInputElement;
+        if (fileInput) fileInput.value = '';
+      } else if (response.status === 400) {
+        const errorData = await response.json();
+        setUploadMessage(errorData.non_field_errors?.[0] || "Xatolik yuz berdi");
+      } else {
+        setUploadMessage("Server xatoligi yuz berdi");
+      }
+    } catch (error) {
+      setUploadMessage("Tarmoq xatoligi yuz berdi");
+    } finally {
+      setUploadLoading(false);
+    }
+  };
+
   const handleNavigation = (page: Page) => {
     setCurrentPage(page);
     setPaginationPage(1);
@@ -170,11 +217,7 @@ const Index = () => {
   };
 
   const handleBack = () => {
-    if (currentPage === "card-input") {
-      setCurrentPage("subscription");
-    } else {
-      setCurrentPage("dashboard");
-    }
+    setCurrentPage("dashboard");
   };
 
   const renderDashboard = () => {
@@ -182,7 +225,7 @@ const Index = () => {
     if (error) {
       return (
         <div className="min-h-screen bg-background">
-          <Header title="Parallel Muhit" showBack={false} />
+          <Header title="Creators.uz" showBack={false} />
           
           <div className="p-4 space-y-4">
             <div className="flex flex-col items-center justify-center py-16 space-y-4">
@@ -203,7 +246,7 @@ const Index = () => {
     if (loading) {
       return (
         <div className="min-h-screen bg-background">
-          <Header title="Parallel Muhit" showBack={false} />
+          <Header title="Creators.uz" showBack={false} />
           
           <div className="p-4 space-y-4">
             <div className="flex flex-col items-center justify-center py-16 space-y-4">
@@ -217,7 +260,7 @@ const Index = () => {
 
     return (
       <div className="min-h-screen bg-background">
-        <Header title="Parallel Muhit" showBack={false} />
+        <Header title="Creators.uz" showBack={false} />
         
         <div className="p-4 space-y-4">
           <BalanceCard 
@@ -226,7 +269,7 @@ const Index = () => {
             currency="kun"
           />
 
-          {/* Subscription Renewal Prompt - Only show if not subscribed */}
+          {/* Payment Receipt Upload - Only show if not subscribed */}
           {userProfile && !userProfile.is_subscribed && (
             <Card className="p-8 bg-gradient-warning border-0 shadow-lg relative overflow-hidden animate-scale-in">
               {/* Decorative elements */}
@@ -236,21 +279,52 @@ const Index = () => {
               <div className="text-center space-y-6 relative z-10">
                 <div className="space-y-2">
                   <h3 className="text-xl font-bold text-warning-foreground">Obunani yangilaysizmi?</h3>
-                  <p className="text-warning-foreground/90 text-sm">Sizning obunangiz tugash arafasida</p>
+                  <p className="text-warning-foreground/90 text-sm">To'lov chekingizni yuklang, admin tekshirib obunani yoqadi</p>
                 </div>
                 
-                <div className="flex gap-4 w-full">
+                <div className="space-y-4">
+                  <div className="flex flex-col items-center space-y-3">
+                    <Label htmlFor="payment-receipt" className="cursor-pointer">
+                      <Card className="p-4 border-2 border-dashed border-white/30 hover:border-white/50 transition-colors">
+                        <div className="flex flex-col items-center space-y-2">
+                          {paymentReceipt ? (
+                            <>
+                              <FileImage className="h-8 w-8 text-warning-foreground" />
+                              <span className="text-sm text-warning-foreground">{paymentReceipt.name}</span>
+                            </>
+                          ) : (
+                            <>
+                              <Upload className="h-8 w-8 text-warning-foreground/70" />
+                              <span className="text-sm text-warning-foreground/90">To'lov chekini yuklash</span>
+                            </>
+                          )}
+                        </div>
+                      </Card>
+                    </Label>
+                    <Input
+                      id="payment-receipt"
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) setPaymentReceipt(file);
+                      }}
+                    />
+                  </div>
+                  
+                  {uploadMessage && (
+                    <div className={`text-sm p-3 rounded-lg ${uploadMessage.includes('muvaffaqiyatli') ? 'bg-success/20 text-success-foreground' : 'bg-destructive/20 text-destructive-foreground'}`}>
+                      {uploadMessage}
+                    </div>
+                  )}
+                  
                   <Button 
-                    className="flex-1 bg-card hover:bg-card-accent text-foreground shadow-md hover:shadow-lg border border-white/20 py-6 rounded-2xl font-semibold transition-all duration-200 hover:scale-[1.02]"
-                    onClick={() => handleNavigation("subscription")}
+                    className="w-full bg-card hover:bg-card-accent text-foreground shadow-md hover:shadow-lg border border-white/20 py-6 rounded-2xl font-semibold transition-all duration-200 hover:scale-[1.02] disabled:opacity-50"
+                    onClick={uploadPaymentReceipt}
+                    disabled={!paymentReceipt || uploadLoading}
                   >
-                    Ha
-                  </Button>
-                  <Button 
-                    className="flex-1 bg-card hover:bg-card-accent text-foreground shadow-md hover:shadow-lg border border-white/20 py-6 rounded-2xl font-semibold transition-all duration-200 hover:scale-[1.02]"
-                    onClick={() => {}}
-                  >
-                    Yo'q
+                    {uploadLoading ? "Yuklanmoqda..." : "Chekni yuborish"}
                   </Button>
                 </div>
               </div>
@@ -258,21 +332,25 @@ const Index = () => {
           )}
 
           <div className="space-y-3">
+            {/* Commented out for version 1
             <MenuItem 
               icon={Edit3} 
               title="Ma'lumotlarni o'zgartirish"
               onClick={() => handleNavigation("profile")}
             />
+            */}
             <MenuItem 
               icon={CreditCard} 
               title="To'lovlar tarixi"
               onClick={() => handleNavigation("payment-history")}
             />
+            {/* Commented out for version 1
             <MenuItem 
               icon={FileText} 
               title="Shartnoma"
               onClick={() => {}}
             />
+            */}
             <MenuItem 
               icon={HelpCircle} 
               title="FAQ"
@@ -288,161 +366,6 @@ const Index = () => {
       </div>
     );
   };
-
-  const renderSubscription = () => (
-    <div className="min-h-screen bg-background">
-      <Header title="Parallel Muhit" showBack={true} onBack={handleBack} />
-      
-      <div className="p-4 space-y-6">
-        <div className="space-y-4">
-          <div className="space-y-3">
-            <p className="text-muted-foreground font-medium">Obuna narxi</p>
-            <div className="flex items-baseline gap-2">
-              <span className="text-5xl font-bold text-foreground tracking-tight">67 000</span>
-              <span className="text-xl text-muted-foreground font-medium">UZS</span>
-            </div>
-          </div>
-        </div>
-
-        <Card className="p-8 bg-gradient-card shadow-lg border-0 relative overflow-hidden">
-          {/* Decorative background */}
-          <div className="absolute top-0 right-0 w-24 h-24 bg-success/5 rounded-full -translate-y-12 translate-x-12" />
-          
-          <div className="space-y-6 relative z-10">
-            <h3 className="text-2xl font-bold text-foreground">Parallel muhit</h3>
-            
-            <div className="space-y-5">
-              <div className="flex items-start gap-4">
-                <div className="w-8 h-8 rounded-full bg-success/15 flex items-center justify-center flex-shrink-0 mt-1">
-                  <CheckCircle className="h-5 w-5 text-success" />
-                </div>
-                <div className="space-y-1">
-                  <p className="font-semibold text-foreground text-lg">Eksklyuziv kontent</p>
-                  <p className="text-muted-foreground leading-relaxed">Matnlar, savol-javoblar va rivoylanishingizga yordam beradigan videolar</p>
-                </div>
-              </div>
-              
-              <div className="flex items-start gap-4">
-                <div className="w-8 h-8 rounded-full bg-success/15 flex items-center justify-center flex-shrink-0 mt-1">
-                  <CheckCircle className="h-5 w-5 text-success" />
-                </div>
-                <div className="space-y-1">
-                  <p className="font-semibold text-foreground text-lg">Parallel muhit</p>
-                  <p className="text-muted-foreground leading-relaxed">Fikrlash va o'sish istagidagi odamlar bilan muloqot qilish imkoni.</p>
-                </div>
-              </div>
-              
-              <div className="flex items-start gap-4">
-                <div className="w-8 h-8 rounded-full bg-success/15 flex items-center justify-center flex-shrink-0 mt-1">
-                  <CheckCircle className="h-5 w-5 text-success" />
-                </div>
-                <div className="space-y-1">
-                  <p className="font-semibold text-foreground text-lg">Haftasiga yangi 2ta insho</p>
-                  <p className="text-muted-foreground leading-relaxed">Har dushanba va payshanba kunlari rivoylanish uchun insholar.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </Card>
-
-        <div className="space-y-4">
-          <p className="text-muted-foreground font-medium text-lg">To'lov turi</p>
-          <RadioGroup defaultValue="uzcard" className="space-y-4">
-            <Card className="p-6 border-2 border-border/50 hover:border-primary/30 hover:shadow-md transition-all duration-200 hover:scale-[1.01] group">
-              <div className="flex items-center space-x-4">
-                <RadioGroupItem value="foreign" id="foreign" className="w-5 h-5" />
-                <Label htmlFor="foreign" className="flex items-center gap-4 cursor-pointer flex-1">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-6 bg-gradient-to-r from-red-500 to-orange-400 rounded-md shadow-sm"></div>
-                    <div className="w-10 h-6 bg-blue-600 rounded-md flex items-center justify-center shadow-sm">
-                      <span className="text-white text-sm font-bold">V</span>
-                    </div>
-                  </div>
-                  <div className="space-y-1">
-                    <p className="font-semibold text-foreground">Chet-el kartasi</p>
-                    <p className="text-sm text-muted-foreground">Tribute orqali</p>
-                  </div>
-                </Label>
-              </div>
-            </Card>
-            
-            <Card className="p-6 border-2 border-primary/20 bg-primary/5 hover:border-primary/40 hover:shadow-md transition-all duration-200 hover:scale-[1.01] group">
-              <div className="flex items-center space-x-4">
-                <RadioGroupItem value="uzcard" id="uzcard" className="w-5 h-5" />
-                <Label htmlFor="uzcard" className="flex items-center gap-4 cursor-pointer flex-1">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-6 bg-gradient-to-r from-blue-600 to-green-500 rounded-md shadow-sm"></div>
-                    <div className="w-10 h-6 bg-gradient-to-r from-purple-600 to-blue-600 rounded-md shadow-sm"></div>
-                  </div>
-                  <div className="space-y-1">
-                    <p className="font-semibold text-foreground">UZCARD / Humo</p>
-                    <p className="text-sm text-muted-foreground">Click to'lov tizimi orqali</p>
-                  </div>
-                </Label>
-              </div>
-            </Card>
-          </RadioGroup>
-        </div>
-
-        <PrimaryButton onClick={() => handleNavigation("card-input")}>
-          Davom etish
-        </PrimaryButton>
-      </div>
-    </div>
-  );
-
-  const renderCardInput = () => (
-    <div className="min-h-screen bg-background">
-      <Header title="Parallel Muhit" showBack={true} onBack={handleBack} />
-      
-      <div className="p-4 space-y-6">
-        <div className="space-y-6">
-          <h2 className="text-2xl font-bold text-foreground">Bank kartasi ma'lumotlarini kiriting</h2>
-          
-          <div className="space-y-5">
-            <div className="space-y-3">
-              <label className="text-sm font-medium text-muted-foreground">Karta raqami</label>
-              <Input 
-                placeholder="0000 0000 0000 0000" 
-                className="text-lg py-7 rounded-2xl border-2 focus:border-primary/50 transition-all duration-200 bg-card-accent"
-              />
-            </div>
-            
-            <div className="space-y-3">
-              <label className="text-sm font-medium text-muted-foreground">Amal qilish muddati</label>
-              <Input 
-                placeholder="MM/YY" 
-                className="text-lg py-7 rounded-2xl border-2 focus:border-primary/50 transition-all duration-200 bg-card-accent"
-              />
-            </div>
-          </div>
-        </div>
-
-        <Card className="p-6 bg-gradient-secondary border-0 shadow-card">
-          <div className="text-center text-sm text-muted-foreground space-y-2 leading-relaxed">
-            <p>Xavfsizlik maqsadida sizning bank kartangiz</p>
-            <p>ma'lumotlari Click xizmatining serverlarida</p>
-            <p>saqlanadi. Sizning shaxsingizga oid hech qanday</p>
-            <p>ma'lumot saqlamaydi. <span className="text-primary underline font-medium">Click ofertasi</span></p>
-          </div>
-
-          <div className="flex items-center justify-center gap-3 mt-6">
-            <span className="text-sm text-muted-foreground font-medium">Powered by</span>
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 bg-primary rounded-full flex items-center justify-center shadow-sm">
-                <div className="w-3.5 h-3.5 bg-white rounded-full"></div>
-              </div>
-              <span className="font-bold text-primary text-lg">click</span>
-            </div>
-          </div>
-        </Card>
-
-        <PrimaryButton>
-          Kodini olish
-        </PrimaryButton>
-      </div>
-    </div>
-  );
 
   const renderPaymentHistory = () => {
     const paymentsPerPage = 10;
@@ -612,78 +535,6 @@ const Index = () => {
     );
   };
 
-  const renderProfile = () => (
-    <div className="min-h-screen bg-background">
-      <Header title="Ma'lumotlarni o'zgartirish" showBack={true} onBack={handleBack} />
-      
-      <div className="p-4 space-y-4">
-        <Collapsible>
-          <CollapsibleTrigger asChild>
-            <Card className="p-4 cursor-pointer hover:bg-accent/50 transition-colors">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Edit3 className="h-5 w-5 text-primary" />
-                  <span className="font-medium">Karta raqamini o'zgartirish</span>
-                </div>
-                <span className="text-sm text-muted-foreground">▼</span>
-              </div>
-            </Card>
-          </CollapsibleTrigger>
-          <CollapsibleContent>
-            <Card className="mt-2 p-4 space-y-4">
-              <div>
-                <p className="text-sm text-muted-foreground mb-2">Sizning hozirgi ulangan kartangiz</p>
-                <p className="text-muted-foreground">Aktiv obuna topilmadi</p>
-              </div>
-              
-              <div className="space-y-3">
-                <div>
-                  <Label className="text-sm font-medium">To'lov usulini yangilash</Label>
-                </div>
-                
-                <div>
-                  <Label htmlFor="cardNumber" className="text-sm font-medium">Karta raqami</Label>
-                  <Input 
-                    id="cardNumber"
-                    placeholder="0000 0000 0000 0000" 
-                    className="mt-1"
-                  />
-                </div>
-                
-                <div>
-                  <Label htmlFor="expiryDate" className="text-sm font-medium">Amal qilish muddati</Label>
-                  <Input 
-                    id="expiryDate"
-                    placeholder="MM/YY" 
-                    className="mt-1"
-                  />
-                </div>
-                
-                <PrimaryButton className="mt-4">
-                  Tasdiqlash kodini olish
-                </PrimaryButton>
-              </div>
-            </Card>
-          </CollapsibleContent>
-        </Collapsible>
-
-        <Card className="p-4 cursor-pointer hover:bg-accent/50 transition-colors">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <CreditCard className="h-5 w-5 text-primary" />
-              <span className="font-medium">Akkauntni o'zgartirish</span>
-            </div>
-            <span className="text-sm text-muted-foreground">▶</span>
-          </div>
-        </Card>
-
-        <PrimaryButton className="mt-8">
-          Orqaga
-        </PrimaryButton>
-      </div>
-    </div>
-  );
-
   // Show dashboard by default
   React.useEffect(() => {
     setCurrentPage("dashboard");
@@ -692,12 +543,6 @@ const Index = () => {
   switch (currentPage) {
     case "dashboard":
       return renderDashboard();
-    case "subscription":
-      return renderSubscription();
-    case "card-input":
-      return renderCardInput();
-    case "profile":
-      return renderProfile();
     case "payment-history":
       return renderPaymentHistory();
     case "faq":
